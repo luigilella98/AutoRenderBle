@@ -26,23 +26,31 @@ def assign_mat(obj):
     material = bpy.data.materials.new(name='gt_material')
     material.use_nodes = True
 
-    # Ottieni il nodo Principled BSDF
-    principled_bsdf_node = material.node_tree.nodes.get("Principled BSDF")
+    if material is not None:
+    # Elimina tutti i nodi nel materiale
+        for node in material.node_tree.nodes:
+            material.node_tree.nodes.remove(node)
 
-# Aggiungi un nodo ShaderNodeAttribute per l'attributo "Col"
+    #Definizione nodi
     attribute_node = material.node_tree.nodes.new('ShaderNodeAttribute')
     attribute_node.attribute_name = "Col"  # Imposta l'attributo su "Col"
-    attribute_node.location = (-200, 0)  # Imposta la posizione del nodo
 
-# Aggiungi un nodo ShaderNodeOutputMaterial
+
     output_node = material.node_tree.nodes.new('ShaderNodeOutputMaterial')
-    output_node.location = (400, 0)  # Imposta la posizione del nodo
+    
+    mix_shader = material.node_tree.nodes.new('ShaderNodeMixShader')
+   
+    emission_node = material.node_tree.nodes.new("ShaderNodeEmission")
 
-# Collega il nodo ShaderNodeAttribute al colore di base del nodo Principled BSDF
-    material.node_tree.links.new(attribute_node.outputs['Color'], principled_bsdf_node.inputs['Base Color'])
+    light_path_node = material.node_tree.nodes.new("ShaderNodeLightPath")
 
-# Collega il nodo Principled BSDF al nodo ShaderNodeOutputMaterial  
-    material.node_tree.links.new(principled_bsdf_node.outputs['BSDF'], output_node.inputs['Surface'])
+    #definizioni connessioni
+
+    material.node_tree.links.new(attribute_node.outputs['Color'], emission_node.inputs['Color'])
+    material.node_tree.links.new(emission_node.outputs['Emission'], mix_shader.inputs[2])
+    material.node_tree.links.new(light_path_node.outputs['Is Camera Ray'], mix_shader.inputs['Fac'])
+    material.node_tree.links.new(mix_shader.outputs['Shader'], output_node.inputs['Surface'])
+
 
 
 # Assegna il materiale all'oggetto trovato
@@ -63,10 +71,10 @@ bpy.ops.wm.ply_import(filepath = args.gt_path)
 
 assign_mat(bpy.data.objects[args.gt_path[args.gt_path.rfind('/') + 1 :args.gt_path.rfind('.')]])
 bpy.context.scene.render.image_settings.file_format = 'PNG'
+bpy.context.scene.render.dither_intensity = 0
 bpy.context.scene.render.resolution_x = 1920
 bpy.context.scene.render.resolution_y = 1080
 cam_obj=bpy.data.objects["Camera"]
-
 
 
 for idx,pose in enumerate(extrinsics):
@@ -75,3 +83,7 @@ for idx,pose in enumerate(extrinsics):
     cam_obj.matrix_world = mat
     bpy.data.scenes["Scene"].render.filepath = os.path.join(os.path.abspath(args.output_path),"{:010d}".format(idx))
     bpy.ops.render.render(write_still=True)
+
+
+    
+

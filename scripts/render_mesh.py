@@ -24,6 +24,8 @@ def decode_pose(line):
 
 extrinsics = open(path_pose).readlines()
 bpy.ops.wm.obj_import(filepath = args.input_path)
+bpy.context.scene.render.engine = 'CYCLES'
+bpy.data.scenes["Scene"].cycles.device = 'GPU'
 bpy.context.scene.render.image_settings.file_format = 'PNG'
 bpy.context.scene.render.resolution_x = 1920
 bpy.context.scene.render.resolution_y = 1080
