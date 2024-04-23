@@ -1,8 +1,8 @@
 import cv2
-
+import matplotlib.pyplot as plt
 # Load the image
-image_path = "../renders/gt_01_gt/0000000000.png"
+image_path = "../renders/fat_cat_gt/posa_000.png"
 image = cv2.imread(image_path)
 img = image[:,:,1]
-print(img.shape)
-print(img.max())
+plt.imshow(image)
+plt.show()
