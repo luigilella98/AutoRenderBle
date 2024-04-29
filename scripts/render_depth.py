@@ -56,9 +56,6 @@ fkx, x0, fky, y0 = read_intrinsics(PATH_CALIB)
 
 
 bpy.ops.import_scene.gltf(filepath = args.input_path) #sostituire in base al tipo di file
-bpy.context.scene.render.engine = 'CYCLES'
-bpy.data.scenes["Scene"].cycles.device = 'GPU'
-bpy.context.scene.render.image_settings.file_format = 'PNG'
 bpy.context.scene.render.resolution_x = RESX
 bpy.context.scene.render.resolution_y = RESY    
 
@@ -72,5 +69,5 @@ for idx,pose in enumerate(extrinsics):
     matx = read_pose(pose)
     matx = np.transpose(matx,axes=[1,0])
     cam_obj.matrix_world = matx
-    bpy.data.scenes["Scene"].render.filepath = os.path.join(os.path.abspath(args.output_path + "/RGB/"),"posa_{:03d}".format(idx))
+    bpy.data.scenes["Scene"].render.filepath = os.path.join(os.path.abspath(args.output_path + "/DEPTH/" ),"posa_{:03d}_depth".format(idx))
     bpy.ops.render.render(write_still=True)

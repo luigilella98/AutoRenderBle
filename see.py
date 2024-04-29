@@ -11,7 +11,7 @@ os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"
 import cv2
 
 try:
-    new = cv2.imread('C:/Users/luigi/Desktop/depth.exr', cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)  
+    new = cv2.imread('C:/Users/luigi/Desktop/untitled5.exr', cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)  
     if new is None:
         raise FileNotFoundError("AAAAAAAAAAAAAAAAAAAAAAAAA")
     
@@ -23,6 +23,8 @@ print(new.shape)
 print(np.max(new))
 print(np.min(new))
 
+
+
 def unique_elements(matrix):
     unique_list = []
     for channel in matrix:
@@ -33,7 +35,6 @@ def unique_elements(matrix):
 
 boh = unique_elements(new)
 
-print(len(boh))
 
 cv2.imshow('exr', new)
 cv2.waitKey(0)
