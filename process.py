@@ -43,7 +43,7 @@ if not os.path.exists(args.input_path):
 if not os.path.exists(args.output_path):
     os.makedirs(args.output_path)
 
-'''
+
 #RENDER IMG
 if os.path.isdir(args.input_path):
     for m in os.listdir(args.input_path):
@@ -52,7 +52,7 @@ if os.path.isdir(args.input_path):
             output_path = os.path.join(args.output_path, m.replace(".glb", ""))
             if not os.path.exists(output_path):
                 os.makedirs(output_path)
-            rendering_process(input_path, output_path)'''   
+            rendering_process(input_path, output_path)
 
 '''
 #RENDER GT

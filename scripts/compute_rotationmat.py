@@ -29,8 +29,8 @@ def extrinsics_matrix(position, rotation):
     return extrinsics
 
 
-position = (-50, 3, 23.5)
-rotation = (-65, 13, -275)
+position = (-45, 5, 15)
+rotation = (70,919 ,0, -96,988)
 
 #position = (42, 34, 15)
 #rotation = (73.159, 0, -230.75)

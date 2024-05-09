@@ -11,7 +11,7 @@ os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"
 import cv2
 
 try:
-    new = cv2.imread('C:/Users/luigi/Desktop/untitled5.exr', cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)  
+    new = cv2.imread('C:/Users/luigi/Desktop/posa_000_depth.exr', cv2.IMREAD_UNCHANGED)  
     if new is None:
         raise FileNotFoundError("AAAAAAAAAAAAAAAAAAAAAAAAA")
     
