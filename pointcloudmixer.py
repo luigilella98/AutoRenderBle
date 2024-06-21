@@ -42,9 +42,9 @@ colors = rgb_image.reshape(-1, 3)  # Reshape dell'immagine RGB in un array di co
 colors = colors[depth_values < 1000]  # Considera solo i colori dei punti validi
 
 # Visualizza la point cloud
-#xyz = point_cloud.reshape([h,w,3])
-#plt.imshow(xyz)
-#plt.show()
+xyz = point_cloud.reshape([h,w,3])
+plt.imshow(xyz)
+plt.show()
 
 # Visualizza la nuvola di punti colorata
 pcd = o3d.geometry.PointCloud()

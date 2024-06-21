@@ -3,10 +3,12 @@ os.environ['OPENCV_IO_ENABLE_OPENEXR'] = '1'
 import cv2
 import numpy as np
 import open3d as o3d
+import tifffile
 
 # Carica la depth map
-depth_map = cv2.imread('C:/Users/luigi/Desktop/posa_001_depth.exr', cv2.IMREAD_UNCHANGED)
+depth_map = cv2.imread('C:/Users/luigi/Desktop/posa_000_depth.exr', cv2.IMREAD_UNCHANGED)
 print(depth_map.min(), depth_map.max())
+print(type(depth_map[0,0][0]))
 
 import matplotlib.pyplot as plt
 plt.imshow(depth_map[:,:,0])
@@ -29,8 +31,17 @@ point_cloud[:, 2] = depth_values
 
 xyz = point_cloud.reshape([h,w,3])
 xyz[depth_map[:,:,0] > 100] = [0, 0, 0]
+
 plt.imshow(xyz)
 plt.show()
+#cv2.imwrite('xyz_nocompression.tiff',xyz) #risultato troppo pesante
+#cv2.imwrite('xyz_32bit.tiff',xyz.astype(np.float32)) #risultato non consistente
+#cv2.imwrite('xyz_5.tiff', xyz, params=(cv2.IMWRITE_TIFF_COMPRESSION, 5)) #compressione LZW, dovrebbe essere quella di
+#cv2.imwrite('xyz_adobe.tiff', xyz, (cv2.IMWRITE_TIFF_COMPRESSION, 8)) #compressione adobe deflate
+#cv2.imwrite('xyz_deflate.tiff', xyz, (cv2.IMWRITE_TIFF_COMPRESSION, 32956)) #deflate
+
+#tifffile.imwrite('tif_xyz.tiff', xyz, compression='zlib')
+
 # Inverti l'asse y per adattarlo al sistema di riferimento della fotocamera
 #point_cloud[:, 1] *= -1
 

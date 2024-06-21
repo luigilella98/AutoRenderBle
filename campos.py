@@ -12,9 +12,8 @@ def visualize_camera_poses(poses):
     geometries.append(mesh_frame)
 
     # Crea una freccia per rappresentare la direzione dello sguardo della camera
-    camera_direction_arrow = o3d.geometry.TriangleMesh.create_arrow(cylinder_radius=0.05, cone_radius=0.1, cylinder_height=0.5, cone_height=0.3)
+    camera_direction_arrow = o3d.geometry.TriangleMesh.create_arrow(cylinder_radius=0.005, cone_radius=0.01, cylinder_height=0.05, cone_height=0.03)
     camera_direction_arrow.compute_vertex_normals()
-
     for pose in poses:
         # Crea una copia della freccia per ogni posa
         arrow_copy = o3d.geometry.TriangleMesh(camera_direction_arrow)
@@ -42,19 +41,27 @@ def load_poses(posepath):
     return poses
 
 # Percorso del file contenente le pose delle camere
-POSE_PATH = './prove/pose.txt'
+POSE_PATH = './resources/poses/pose.txt'
 
 # Carica le pose delle camere
 poses = load_poses(POSE_PATH)
+def inverse_transform(transform):
+    inverse_transformation = np.linalg.inv(transform)
+    return inverse_transformation
+
+# Funzione per trasformare le pose delle camere rispetto all'origine comune
+def transform_poses_to_common_origin(poses, sensor_to_mesh_transform):
+    poses_in_common_origin = []
+    for pose in poses:
+        # Applica la trasformazione inversa dalla mesh finale al sistema del sensore
+        pose_from_sensor_to_mesh = inverse_transform(sensor_to_mesh_transform) @ pose
+
+        # Aggiungi la posa della camera rispetto all'origine comune alla lista
+        poses_in_common_origin.append(pose_from_sensor_to_mesh)
+
+    return poses_in_common_origin
 
 # Matrice di trasformazione di Blender
-blender_pose = np.array([[1, 0, 0, 0],
-                         [0, -1, 0, 0],
-                         [0, 0, -1, 0],
-                         [0, 0, 0, 1]])
-
-# Applica la trasformazione di Blender alle pose delle camere
-poses2 = [np.dot( pose, blender_pose) for pose in poses]
 
 # Visualizza le pose della camera
-visualize_camera_poses(poses2)
+visualize_camera_poses(poses)

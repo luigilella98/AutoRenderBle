@@ -64,10 +64,15 @@ cam=bpy.data.cameras["Camera"]
 bpy.data.scenes["Scene"].camera=cam_obj
 setCameraParams(cam, fkx, fky, x0, y0)
 
+blender_pose=([[1,0,0,0],
+            [0,-1,0,0],
+            [0,0,-1,0],
+            [0,0,0,1]])
 
 for idx,pose in enumerate(extrinsics):
     matx = read_pose(pose)
     matx = np.transpose(matx,axes=[1,0])
     cam_obj.matrix_world = matx
+    matx = np.dot(blender_pose, matx)
     bpy.data.scenes["Scene"].render.filepath = os.path.join(os.path.abspath(args.output_path + "/DEPTH/" ),"posa_{:03d}_depth".format(idx))
     bpy.ops.render.render(write_still=True)

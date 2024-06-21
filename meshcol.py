@@ -6,16 +6,17 @@ import open3d as o3d
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-DEPTH_PATH = './prove/depth'
-RGB_PATH = './prove/rgb'
-POSE_PATH = './prove/pose.txt'
+DEPTH_PATH = './renders/NOJIG/depth'
+RGB_PATH = './renders/NOJIG/rgb'
+POSE_PATH = './renders/NOJIG/RGB/pose.txt'
 
 # Caricamento delle depthmaps
 def load_depth(dpath):
     depths = []
     if os.path.isdir(dpath):
         for f in tqdm(os.listdir(dpath), desc="Caricamento delle depthmaps"):
-            depths.append(cv2.imread(os.path.join(dpath, f), cv2.IMREAD_UNCHANGED))
+            if not f.endswith("txt"):
+                depths.append(cv2.imread(os.path.join(dpath, f), cv2.IMREAD_UNCHANGED))
     return depths
 
 # Caricamento delle RGBs
@@ -23,8 +24,9 @@ def load_rgbs(rgbpath):
     rgbs = []
     if os.path.isdir(rgbpath):
         for f in tqdm(os.listdir(rgbpath), desc="Caricamento delle RGBs"):
-            img = cv2.imread(os.path.join(rgbpath, f))
-            rgbs.append(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            if not f.endswith("txt"):
+                img = cv2.imread(os.path.join(rgbpath, f))
+                rgbs.append(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     return rgbs
 
 # Caricamento delle pose
@@ -62,12 +64,12 @@ for i in tqdm(range(len(depth)), desc="Creazione delle pointcloud"):
     point_cloud[:, 0] = (mesh_points[:, 0] - cx) * depth_values / focal_length
     point_cloud[:, 1] = (mesh_points[:, 1] - cy) * depth_values / focal_length
     point_cloud[:, 2] = depth_values
-    valid_points_mask = depth_values < 1000
-    point_cloud = point_cloud[valid_points_mask]
+    points_mask = depth_values < 1000
+    point_cloud = point_cloud[points_mask]
     
 
     colors = rgb[i].reshape(-1, 3)
-    colors = colors[valid_points_mask]
+    colors = colors[points_mask]
     
 
     pcd = o3d.geometry.PointCloud()
@@ -75,12 +77,12 @@ for i in tqdm(range(len(depth)), desc="Creazione delle pointcloud"):
     pcd.colors = o3d.utility.Vector3dVector(colors / 255.0)
     
 
-    voxel_size = 0.015  
+    voxel_size = 0.008  
     pcd_down = pcd.voxel_down_sample(voxel_size)
     
     ply.append(pcd_down)
 
-# da togliere, modificare il file delle pose, modificare il file di rendering per adattarsi 
+# da togliere, modificare il file delle pose, modificare il file di rendering per adattarsi , lascia con un if
 blender_pose = [[1, 0, 0, 0],
                 [0, -1, 0, 0],
                 [0, 0, -1, 0],
@@ -95,23 +97,21 @@ merged_pcd = o3d.geometry.PointCloud()
 
 for i, pcd in tqdm(enumerate(ply), desc="Pointcloud portate rispetto la stessa posa"):
 
-    transformed_pcd = pcd.transform(np.linalg.inv(poses2[0]) @ poses2[i]) 
+    transformed_pcd = pcd.transform(np.linalg.inv(poses2[0]) @ poses2[i]) #nella mia testa era al contrario anche eyecandies mette prima inv
     merged_pcd += transformed_pcd
 
 # Caricamento mesh
-merged_pcd.transform(poses2[0])
-mesh = o3d.io.read_triangle_mesh("./prove/fbx/KYRRE.fbx")
-#mesh = o3d.io.read_triangle_mesh("./resources/KYRRE.glb")
-
+mesh = o3d.io.read_triangle_mesh("./prove/fbx/NOJIG.fbx")
 
 #rotation_matrix = mesh.get_rotation_matrix_from_axis_angle(( np.pi/2, 0,0))
 #mesh.rotate(rotation_matrix)
 
 # allineamento a pointcloud
-#mesh.transform(np.linalg.inv(poses2[0]))
-mesh_center = o3d.geometry.TriangleMesh.create_sphere(radius=0.01)
-mesh_center.translate(np.array([0, 0, 0]))
-o3d.visualization.draw_geometries([merged_pcd, mesh, mesh_center])
+mesh.transform(np.linalg.inv(poses2[0]))
+
+o3d.visualization.draw_geometries([merged_pcd, mesh])
+
+
 # assegnazione dei colori 
 k = 6  
 pcd_tree = o3d.geometry.KDTreeFlann(merged_pcd)

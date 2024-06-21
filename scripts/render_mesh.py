@@ -8,14 +8,15 @@ import xml.etree.ElementTree as ET
 PATH_POSE = './resources/poses/pose.txt'
 PATH_CALIB = './resources/calib.xml'
 
-RESX = 4090
-RESY = 3126
+RESX = 4096
+RESY = 3000
 
 if '--' in sys.argv:
     argv = sys.argv[sys.argv.index('--') + 1:]
     parser = argparse.ArgumentParser()
     parser.add_argument('--output_path', type=str, default='./renders/', help='path to the folder where the renders will be stored')
     parser.add_argument('--input_path', type=str, default='./resources/meshes/', help='path to the folder containing the meshes')
+
 
     args=parser.parse_known_args(argv)[0]
 
@@ -56,8 +57,8 @@ fkx, x0, fky, y0 = read_intrinsics(PATH_CALIB)
 
 
 bpy.ops.import_scene.gltf(filepath = args.input_path) #sostituire in base al tipo di file
-bpy.context.scene.render.engine = 'CYCLES'
-bpy.data.scenes["Scene"].cycles.device = 'GPU'
+#bpy.context.scene.render.engine = 'CYCLES'
+#bpy.data.scenes["Scene"].cycles.device = 'GPU'
 bpy.context.scene.render.image_settings.file_format = 'PNG'
 bpy.context.scene.render.resolution_x = RESX
 bpy.context.scene.render.resolution_y = RESY    
@@ -67,10 +68,16 @@ cam=bpy.data.cameras["Camera"]
 bpy.data.scenes["Scene"].camera=cam_obj
 setCameraParams(cam, fkx, fky, x0, y0)
 
+blender_pose=([[1,0,0,0],
+            [0,-1,0,0],
+            [0,0,-1,0],
+            [0,0,0,1]])
 
 for idx,pose in enumerate(extrinsics):
     matx = read_pose(pose)
     matx = np.transpose(matx,axes=[1,0])
+
+    matx = np.dot(blender_pose, matx)
     cam_obj.matrix_world = matx
     bpy.data.scenes["Scene"].render.filepath = os.path.join(os.path.abspath(args.output_path + "/RGB/"),"posa_{:03d}".format(idx))
     bpy.ops.render.render(write_still=True)

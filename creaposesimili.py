@@ -1,23 +1,27 @@
 import argparse
-import math
-import numpy as np
+import math 
+import numpy as np 
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--output_pose', type=str, default='./resources/poses/', help='path to the folder where the pose.txt will be stored')
-parser.add_argument("--radius", type=float, default=1.0, help ="radius of the sphere")
-parser.add_argument("--step", type=float, default=0.15, help="step along z")
-parser.add_argument("--num_pose", type=int, default=12, help="number of poses that will be generated")
-parser.add_argument("--opencv", action='store_true', help="output convention")
-
+parser.add_argument('--startingpoint', type=float, nargs=3, default=[1.0, 1.0, 1.0], help='starting point taken in blender as three float values. 1 1 1')
+parser.add_argument('--step', type=float, default=0.5, help='step')
+parser.add_argument('--opencv', action='store_true')
+parser.add_argument('--output', type=str, default='./resources/poses/')
+parser.add_argument('--num_pose', type=int, default=45)
 args = parser.parse_args()
 
-alpha = [(2 * math.pi) / args.num_pose * a for a in range(args.num_pose)]
-theta = [math.acos((i * args.step) / args.radius) for i in range(1, 4)]
+starting_point = args.startingpoint 
+radius = np.sqrt(starting_point[0]**2 + starting_point[1]**2 + starting_point[2]**2)
+print(radius)
 
-c_1 = [(args.radius * math.sin(theta[0]) * math.cos(a), args.radius * math.sin(theta[0]) * math.sin(a), args.step * 1) for a in alpha]
-c_2 = [(args.radius * math.sin(theta[1]) * math.cos(a), args.radius * math.sin(theta[1]) * math.sin(a), args.step * 2) for a in alpha]
-c_3 = [(args.radius * math.sin(theta[2]) * math.cos(a), args.radius * math.sin(theta[2]) * math.sin(a), args.step * 3) for a in alpha]
+alpha = [(2 * math.pi) / args.num_pose * a for a in range(args.num_pose)]
+theta = [math.acos((i * args.step) / radius) for i in range(1, 4)]
+
+c_1 = [(radius * math.sin(theta[0]) * math.cos(a), radius * math.sin(theta[0]) * math.sin(a), args.step * 1) for a in alpha]
+c_2 = [(radius * math.sin(theta[1]) * math.cos(a), radius * math.sin(theta[1]) * math.sin(a), args.step * 2) for a in alpha]
+c_3 = [(radius * math.sin(theta[2]) * math.cos(a), radius * math.sin(theta[2]) * math.sin(a), args.step * 3) for a in alpha]
+
 
 def extrinsics_matrix(position, rotation):
     rotation_rad = np.radians(rotation)

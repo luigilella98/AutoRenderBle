@@ -16,6 +16,7 @@ parser.add_argument("--template_path_depth", dest='path_template_depth', type=st
 parser.add_argument("--gt_path", type=str,default= './resources/mesh_gt/', help='path to the gt')
 parser.add_argument("--blender_path", type=str, default='C:/Program Files/Blender Foundation/Blender 4.0/blender.exe', help ="path to blender exe")
 
+
 args=parser.parse_args()
 
 #funzione rendering pose colorate

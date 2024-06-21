@@ -18,6 +18,7 @@ if '--' in sys.argv:
     parser.add_argument('--output_path', type=str, default='./renders/', help='path to the folder where the renders will be stored')
     parser.add_argument('--gt_path', type=str, default='./resources/mesh_gt/', help='path to the folder containing the gt')
 
+
     args=parser.parse_known_args(argv)[0]
 
 def read_pose(line):
@@ -108,9 +109,16 @@ cam=bpy.data.cameras["Camera"]
 bpy.data.scenes["Scene"].camera=cam_obj
 setCameraParams(cam, fkx, fky, x0, y0)
 
+blender_pose=([[1,0,0,0],
+            [0,-1,0,0],
+            [0,0,-1,0],
+            [0,0,0,1]])
+
 for idx,pose in enumerate(extrinsics):
     mat = read_pose(pose)
     mat=np.transpose(mat,axes=[1,0])
+
+    matx = np.dot(blender_pose, mat)
     cam_obj.matrix_world = mat
     bpy.data.scenes["Scene"].render.filepath = os.path.join(os.path.abspath(args.output_path),"posa_{:03d}".format(idx))
     bpy.ops.render.render(write_still=True)
